@@ -9,6 +9,8 @@ services:
     volumes:
       - .:/app   # Mount current directory into container
       - /app/node_modules  # Avoid overwriting node_modules
+      - ./public:/app/public
+
     ports:
       - "5000:5000"
     command: npx retype watch --port 5000
