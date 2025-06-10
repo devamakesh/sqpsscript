@@ -1,23 +1,21 @@
-FROM node:20-slim
+# Stage 1: Build Retype static site
+FROM node:20-slim AS builder
 
-# Install system dependencies including ICU for .NET globalization support
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    unzip \
-    libicu-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libicu-dev && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy all files to the container
 COPY . .
 
-# Install Retype CLI locally
 RUN npm install retypeapp
+RUN npx retype build
 
-# Expose default Retype server port
-EXPOSE 5000
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
 
-# Start Retype in watch mode for live reload during development
-CMD ["npx", "retype", "watch", "--port", "5000"]
+COPY --from=builder /app/public /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+     
