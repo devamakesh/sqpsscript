@@ -16,12 +16,10 @@ RUN npm install retypeapp
 # Build the static site
 RUN npx retype build
 
-# Stage 2: Serve using NGINX
-FROM nginx:alpine
+EXPOSE 5000
 
-# Copy the built site from builder
-COPY --from=builder /app/public /usr/share/nginx/html
+# For production serve:
+CMD ["npx", "retype", "serve", "--port", "5000"]
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# For development with live reload, replace CMD with:
+# CMD ["npx", "retype", "watch", "--port", "5000"]
