@@ -1,25 +1,23 @@
-# Stage 1: Build with Retype
-FROM node:20-slim AS builder
+FROM node:20-slim
 
-# Install dependencies
-RUN apt-get update && apt-get install -y curl unzip git && rm -rf /var/lib/apt/lists/*
+# Install system dependencies including ICU for .NET globalization support
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    unzip \
+    libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy Retype project files
+# Copy all files to the container
 COPY . .
 
-# Install Retype locally
+# Install Retype CLI locally
 RUN npm install retypeapp
 
-# Build the static site
-RUN npx retype build
-
+# Expose default Retype server port
 EXPOSE 5000
 
-# For production serve:
-CMD ["npx", "retype", "serve", "--port", "5000"]
-
-# For development with live reload, replace CMD with:
-# CMD ["npx", "retype", "watch", "--port", "5000"]
+# Start Retype in watch mode for live reload during development
+CMD ["npx", "retype", "watch", "--port", "5000"]
