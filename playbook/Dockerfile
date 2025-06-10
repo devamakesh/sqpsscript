@@ -1,26 +1,28 @@
-# Use the official Node.js image as a builder
-FROM node:20-alpine AS builder
+# Use a Debian-based Node.js image
+FROM node:20-slim AS builder
+
+# Install curl and unzip
+RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy all files to container
+# Copy project files
 COPY . .
 
-# Install Retype globally
-RUN npm install -g retypeapp
+# Download and install retype manually
+RUN curl -fsSL https://retype.com/downloads/retype-linux.zip -o retype.zip \
+    && unzip retype.zip -d /usr/local/bin \
+    && chmod +x /usr/local/bin/retype \
+    && rm retype.zip
 
 # Build the site
-RUN retype build
+RUN /usr/local/bin/retype build
 
-# Use a lightweight web server to serve the built site
+# Final image: serve using nginx
 FROM nginx:alpine
 
-# Copy the built site to the NGINX html directory
 COPY --from=builder /app/public /usr/share/nginx/html
 
-# Expose port 80
 EXPOSE 80
-
-# Start NGINX server
 CMD ["nginx", "-g", "daemon off;"]
