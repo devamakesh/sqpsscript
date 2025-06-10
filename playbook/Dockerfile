@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     unzip \
-    libicu-dev \
+    libicu67 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
