@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  retype-dev:
+    image: sqps-doc-retype
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app   # Mount current directory into container
+      - /app/node_modules  # Avoid overwriting node_modules
+    ports:
+      - "5000:5000"
+    command: npx retype watch --port 5000
+    environment:
+      - NODE_ENV=development
